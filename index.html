@@ -18,7 +18,7 @@
 
   <style>
     html {
-      background:#018DED url(http://unsplash.it/1500/1000?image=881&blur=50);
+      background:#000;
       background-size:cover;
       font-family:'helvetica neue';
       text-align: center;
@@ -42,11 +42,6 @@
       margin:50px auto;
       position: relative;
       padding:2rem;
-      box-shadow:
-        0 0 0 4px rgba(0,0,0,0.1),
-        inset 0 0 0 3px #EFEFEF,
-        inset 0 0 10px black,
-        0 0 10px rgba(0,0,0,0.2);
     }
 
     .clock-face {
@@ -59,16 +54,87 @@
     .hand {
       width:50%;
       height:6px;
-      background:black;
+      background:#fff;
       position: absolute;
       top:50%;
+      transform-origin: 100%;
+      transform: rotate(90deg);
+      transition-timing-function: cubic-bezier(0.1, 2.7. 0.58, 1);
+      transition: all 0.1s;
+      visibility: hidden;
+    }
+
+    .hand.hour-hand {
+      width: 30%;
+      left: 20%;
+    }
+
+    .clock.ready .hand {
+      visibility: visible;
     }
 
   </style>
 
   <script>
+    (function () {
 
+      'use strict';
 
+      const clock = document.querySelector('.clock');
+      const secondHand = document.querySelector('.second-hand');
+      const minuteHand = document.querySelector('.min-hand');
+      const hourHand = document.querySelector('.hour-hand');
+      const hands = document.querySelectorAll('.hand');
+
+      function timeToDegree (time, division = 60) {
+        return ((time / division) * 360) + 90;
+      }
+
+      function setSeconds (now) {
+        const seconds = now.getSeconds();
+        const degrees = timeToDegree(seconds);
+        setStyle(secondHand, degrees);
+      }
+
+      function setMins (now) {
+        const mins = now.getMinutes();
+        const degrees = timeToDegree(mins);
+        setStyle(minuteHand, degrees);
+      }
+
+      function setHours (now) {
+        const hours = now.getHours();
+        const degrees = timeToDegree(hours, 12);
+        setStyle(hourHand, degrees);
+      }
+
+      function makeReady () {
+        clock.classList.add('ready');
+      }
+
+      function setTime (now) {
+        setSeconds(now);
+        setMins(now);
+        setHours(now);
+        window.setTimeout(makeReady, 1000);
+      }
+
+      function setStyle (el, degrees) {
+        if (el === secondHand) {
+          if (degrees === 90) {
+            el['style'].transition = 'none';
+          } else if (el['style'].transition === 'none') {
+            el['style'].transition = 'all 0.1s';
+          }
+        }
+        el['style'].transform = `rotate(${degrees}deg)`;
+      }
+
+      window.setInterval(() => {
+        setTime(new Date());
+      }, 1000);
+
+    })();
   </script>
 </body>
 </html>
